@@ -4,6 +4,7 @@ import {createUser} from "../services/user.service.js";
 import {validationResult} from "express-validator"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
+import { BlackListedToken } from "../models/blacklistToken.model.js";
 
 
 // ------------Register User--------------------------------//
@@ -74,9 +75,53 @@ const userLogin = asyncHandler(async(req, res)=>{
         throw new ApiError(401, "Invalid password")
     }
     const token = user.generateAuthToken()
-    return res.status(201).json(
-        new ApiResponse(201, token, "User Loggedin Successfully"))
+ const options = {
+// The cookie cannot be accessed via JavaScript in the browser (e.g., document.cookie).
+// ✅ This helps prevent XSS attacks, that's why httpOnly: true .
+    httpOnly: true,
+// The cookie is only sent over HTTPS (not HTTP).
+// This prevents the cookie from being sent over an unencrypted connection
+    secure: true
+}
+//  So you're saying: "Only send this cookie in secure environments, 
+// and don't let JavaScript touch it.
+   return res
+    .status(200)
+    .cookie("Token", token, options)
+    .json(
+        new ApiResponse(
+            200, 
+            {
+                user: user, token
+            },
+            "User logged In Successfully"
+        )
+    )
+
 })
+
+//--------------------Logout User-----------------------------//
+const userLogout = asyncHandler(async (req, res) => {
+    const token = req.cookies?.Token|| req.header("Authorization")?.replace("Bearer ","")
+    res.clearCookie("Token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict"
+    });
+    await BlackListedToken.create({token})
+    return res.status(200).json(
+        new ApiResponse(200, null, "User logged out successfully")
+    );
+});
+
+//--------------------get User profile-----------------------------//
+const getUserProfile = async (req, res)=>{
+
+    res.status(201).json(req.user);
+}
 export {
     userRegister,
-    userLogin}
+    userLogin,
+    getUserProfile,
+    userLogout
+}
