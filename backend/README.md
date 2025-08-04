@@ -195,3 +195,57 @@ The request body must be a JSON object with the following structure:
 ## Notes
 - The returned JWT token can be used for authenticated requests.
 - Password is never returned in the response.
+
+---
+
+# User Logout Endpoint Documentation
+
+## Endpoint
+
+`POST /user/logout`
+
+## Description
+Logs out the currently authenticated user by clearing the authentication cookie and blacklisting the JWT token. The blacklisted token will expire automatically after a set period (e.g., 1 hour), after which the same token value can be reused if reissued.
+
+## Request
+- No request body is required. The endpoint expects the authentication cookie (`Token`) to be present.
+
+## Responses
+
+### Success
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "statusCode": 200,
+    "data": null,
+    "message": "User logged out successfully",
+    "success": true
+  }
+  ```
+
+### Not Authenticated
+- **Status Code:** `401 Unauthorized`
+- **Body:**
+  ```json
+  {
+    "statusCode": 401,
+    "data": null,
+    "message": "Authentication required",
+    "success": false
+  }
+  ```
+
+### Other Errors
+- **Status Code:** `500 Internal Server Error`
+- **Body:**
+  ```json
+  {
+    "error": "Internal Server Error"
+  }
+  ```
+
+## Notes
+- The JWT token is blacklisted and will be rejected for future requests until it expires from the blacklist.
+- The cookie is cleared from the client, so the user is logged out in the browser.
+- No request body is needed; the endpoint works based on the authentication cookie.
