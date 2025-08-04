@@ -25,5 +25,7 @@ app.get("/",(req,res)=>{
 })
 
 import userRouter from './routes/user.route.js'
+import captianRouter from './routes/captian.routes.js'
 app.use("/api/v1/user", userRouter)
+app.use("/api/v1/captian", captianRouter)
 export default app;

@@ -249,3 +249,141 @@ Logs out the currently authenticated user by clearing the authentication cookie 
 - The JWT token is blacklisted and will be rejected for future requests until it expires from the blacklist.
 - The cookie is cleared from the client, so the user is logged out in the browser.
 - No request body is needed; the endpoint works based on the authentication cookie.
+
+---
+
+# Captian Registration Endpoint Documentation
+
+## Endpoint
+
+`POST /captian/register`
+
+## Description
+Registers a new captian (driver) in the system. This endpoint validates the input, checks for duplicate email, hashes the password, creates a captian with vehicle details, and returns an authentication token along with the captian data (excluding the password).
+
+## Request Body
+The request body must be a JSON object with the following structure:
+
+```
+{
+  "fullname": {
+    "firstname": "<string, min 3 chars>",
+    "lastname": "<string, optional, min 3 chars>"
+  },
+  "email": "<string, valid email>",
+  "password": "<string, min 6 chars>",
+  "vehicle": {
+    "color": "<string>",
+    "plate": "<string>",
+    "capacity": <number>,
+    "vehicleType": "<string>"
+  }
+}
+```
+
+### Example
+```
+{
+  "fullname": {
+    "firstname": "Alex",
+    "lastname": "Smith"
+  },
+  "email": "alex.smith@example.com",
+  "password": "captian123",
+  "vehicle": {
+    "color": "Red",
+    "plate": "ABC-1234",
+    "capacity": 4,
+    "vehicleType": "Sedan"
+  }
+}
+```
+
+## Validation Rules
+- `fullname.firstname`: Required, minimum 3 characters
+- `fullname.lastname`: Optional, minimum 3 characters if provided
+- `email`: Required, must be a valid email address and unique
+- `password`: Required, minimum 6 characters
+- `vehicle.color`: Required
+- `vehicle.plate`: Required
+- `vehicle.capacity`: Required, must be a number
+- `vehicle.vehicleType`: Required
+
+## Responses
+
+### Success
+- **Status Code:** `201 Created`
+- **Body:**
+  ```json
+  {
+    "statusCode": 201,
+    "data": {
+      "captian": {
+        "_id": "<captian id>",
+        "fullname": {
+          "firstname": "Alex",
+          "lastname": "Smith"
+        },
+        "email": "alex.smith@example.com",
+        "color": "Red",
+        "plate": "ABC-1234",
+        "capacity": 4,
+        "vehicleType": "Sedan"
+        // ...other captian fields (excluding password)
+      },
+      "token": "<JWT token>"
+    },
+    "message": "Captian Registered Successfully",
+    "success": true
+  }
+  ```
+
+### Validation Error
+- **Status Code:** `422 Unprocessable Entity`
+- **Body:**
+  ```json
+  {
+    "statusCode": 422,
+    "data": null,
+    "message": "Validation failed",
+    "success": false,
+    "errors": [
+      {
+        "field": "email",
+        "message": "Invalid Email"
+      },
+      {
+        "field": "password",
+        "message": "Password must be at least 6 characters long"
+      }
+      // ...other errors
+    ]
+  }
+  ```
+
+### Duplicate Email Error
+- **Status Code:** `400 Bad Request`
+- **Body:**
+  ```json
+  {
+    "statusCode": 400,
+    "data": null,
+    "message": "This email already is in used",
+    "success": false
+  }
+  ```
+
+### Other Errors
+- **Status Code:** `500 Internal Server Error`
+- **Body:**
+  ```json
+  {
+    "error": "Internal Server Error"
+  }
+  ```
+
+## Notes
+- The password is securely hashed before storage.
+- The returned JWT token can be used for authenticated requests.
+- The password field is never returned in the response.
+- Vehicle details are required for captian registration.
