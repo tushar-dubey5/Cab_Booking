@@ -8,7 +8,7 @@ import { ApiError } from "../utils/ApiError.js";
 
 // ------------Register User--------------------------------//
 
-const userRegister = asyncHandler(async(req, res, next)=>{
+const userRegister = asyncHandler(async(req, res)=>{
 
 // if anything goes wrong while checking in route then it is passed through req in validation result
     const errors  = validationResult(req)
@@ -43,6 +43,40 @@ const userRegister = asyncHandler(async(req, res, next)=>{
     )
 })
 
+//-----------------------Login User----------------------------------//
 
-
-export {userRegister}
+const userLogin = asyncHandler(async(req, res)=>{
+    const errors  = validationResult(req)
+    console.log("Here are the errors, ",errors);
+    
+    // errors is an array of all the validation errors
+    if(!errors.isEmpty()){
+         const formattedErrors = errors.array().map(err => ({
+        field: err.param,
+        message: err.msg
+      }));
+    
+      throw new ApiError(422, "Validation failed", formattedErrors);
+    }
+    const {email, password} = req.body;
+    console.log("Email and Password", email, password);
+    
+    const user = await User.findOne({email}).select('+password') // because by default we have set not to send password
+    console.log("Here is the user", user);
+    
+    if(!user){
+        throw new ApiError(401,"User not found!")
+    }
+    const isMatch = await user.comparePassword(password);
+    console.log(("Is Matched", isMatch));
+    
+    if(!isMatch){
+        throw new ApiError(401, "Invalid password")
+    }
+    const token = user.generateAuthToken()
+    return res.status(201).json(
+        new ApiResponse(201, token, "User Loggedin Successfully"))
+})
+export {
+    userRegister,
+    userLogin}
