@@ -3,14 +3,26 @@ dotenv.config()
 import express from "express"
 import cors from 'cors'
 
-
 const app = express();
-app.use(cors())
+app.use(cors({
+    origin: process.env.CORS_ORIGIN
+}))
+app.use(express.json({
+    limit: "16kb"
+}))
+
+//Even when URL contains SPACE or %20 
+app.use(express.urlencoded({extended: true}))
+
+
+//to use static assets
+app.use(express.static("public"))
 
 
 app.get("/",(req,res)=>{
     res.send("Hello World")
 })
 
-
+import userRouter from './routes/user.route.js'
+app.use("/api/v1/user", userRouter)
 export default app;

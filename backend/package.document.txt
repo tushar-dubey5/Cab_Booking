@@ -1,0 +1,9 @@
+1) express-validator
+express-validator is a middleware for validating and sanitizing user input in Express.js apps.
+When users submit data (like in a login or signup form), you want to make sure:
+Required fields are filled.
+Emails are valid.
+Passwords meet strength requirements.
+No malicious scripts or invalid input is sent.
+express-validator helps do all that easily and securely.
+
