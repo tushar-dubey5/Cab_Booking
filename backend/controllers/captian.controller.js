@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import createCaptian from "../services/captian.service.js";
+import { BlackListedToken } from "../models/blacklistToken.model.js";
 
 
 const registerCaptian = asyncHandler(async (req, res)=>{
@@ -44,4 +45,64 @@ const registerCaptian = asyncHandler(async (req, res)=>{
 
 })
 
-export {registerCaptian}
+//------------Login----------------------------------------------------//
+
+const loginCaptian = asyncHandler(async(req, res)=>{
+    const {email, password} = req.body;
+    if(!email || !password){
+        throw new ApiError(400, "Please Enter Valid Email or Password")
+    }
+    const captian = await Captian.findOne({ email }).select('+password');
+    if(!captian){
+        throw new ApiError(400,"Email Not Found")
+    }
+    const isValidPassword = captian.comparePassword(password)
+    if(!isValidPassword){
+        throw new ApiError(400, "Invalid Password")
+    }
+    const token = captian.generateAuthToken();
+    const options = {
+    httpOnly: true,
+    secure: true
+    }
+   return res
+    .status(200)
+    .cookie("Token", token, options)
+    .json(
+        new ApiResponse(
+            200, 
+            {
+                captian: captian, token
+            },
+            "Captian logged In Successfully"
+        )
+    )
+
+
+})
+
+const getCaptianProfile = asyncHandler(async(req, res)=>{
+    res.status(200).json(req.captian)
+})
+
+const logoutCaptain  = asyncHandler(async(req,res)=>{
+       const token = req.cookies?.Token|| req.header("Authorization")?.replace("Bearer ","")
+       console.log("Here is the token", token);
+       
+       res.clearCookie("Token", {
+           httpOnly: true,
+           secure: true,
+           sameSite: "strict"
+       });
+       await BlackListedToken.create({token})
+       return res.status(200).json(
+           new ApiResponse(200, null, "Captian logged out successfully")
+       );
+   });
+
+export {
+    registerCaptian,
+    loginCaptian,
+    getCaptianProfile,
+    logoutCaptain
+}
