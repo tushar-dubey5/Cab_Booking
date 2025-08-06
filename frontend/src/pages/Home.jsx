@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react';
+// animation library used from moving the destination/Source panel up
 import gsap from 'gsap';
 import axios from 'axios';
+//icons Library
 import 'remixicon/fonts/remixicon.css'
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import VehiclePanel from '../components/VehiclePanel';

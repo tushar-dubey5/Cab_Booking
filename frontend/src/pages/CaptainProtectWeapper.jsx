@@ -20,13 +20,13 @@ const CaptainProtectWrapper = ({
             navigate('/captain-login')
         }
 
-        axios.get(`${process.env.REACT_APP_BASE_URL}/captains/profile`, {
+        axios.get(`${process.env.REACT_APP_BASE_URL}/captain/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         }).then(response => {
             if (response.status === 200) {
-                setCaptain(response.data.captain)
+                setCaptain(response.data.data) // Updated to handle ApiResponse format
                 setIsLoading(false)
             }
         })

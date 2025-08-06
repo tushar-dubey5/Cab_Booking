@@ -32,21 +32,24 @@ const UserSignup = () => {
       password: password
     }
 
-    const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/users/register`, newUser)
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/users/register`, newUser)
 
-    if (response.status === 201) {
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token', data.token)
-      navigate('/home')
+      if (response.status === 201) {
+        const data = response.data
+        setUser(data.data.user) // Updated to handle ApiResponse format
+        localStorage.setItem('token', data.data.token)
+        navigate('/home')
+      }
+    } catch (error) {
+      console.error('Registration error:', error.response?.data || error.message)
+      // You can add a state to show error message to user
     }
-
 
     setEmail('')
     setFirstName('')
     setLastName('')
     setPassword('')
-
   }
   return (
     <div>

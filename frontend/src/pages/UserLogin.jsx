@@ -1,3 +1,4 @@
+
 import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { UserDataContext } from '../context/UserContext'
@@ -22,15 +23,19 @@ const UserLogin = () => {
       password: password
     }
 
-    const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/users/login`, userData)
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/users/login`, userData)
 
-    if (response.status === 200) {
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token', data.token)
-      navigate('/home')
+      if (response.status === 200) {
+        const data = response.data
+        setUser(data.data.user) // Updated to handle ApiResponse format
+        localStorage.setItem('token', data.data.token)
+        navigate('/home')
+      }
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message)
+      // You can add a state to show error message to user
     }
-
 
     setEmail('')
     setPassword('')

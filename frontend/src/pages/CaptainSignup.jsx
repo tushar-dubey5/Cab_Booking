@@ -39,13 +39,18 @@ const CaptainSignup = () => {
       }
     }
 
-    const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/captains/register`, captainData)
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/captain/register`, captainData)
 
-    if (response.status === 201) {
-      const data = response.data
-      setCaptain(data.captain)
-      localStorage.setItem('token', data.token)
-      navigate('/captain-home')
+      if (response.status === 201) {
+        const data = response.data
+        setCaptain(data.data.captian) // Updated to handle ApiResponse format
+        localStorage.setItem('token', data.data.token)
+        navigate('/captain-home')
+      }
+    } catch (error) {
+      console.error('Captain registration error:', error.response?.data || error.message)
+      // You can add a state to show error message to user
     }
 
     setEmail('')
@@ -56,7 +61,6 @@ const CaptainSignup = () => {
     setVehiclePlate('')
     setVehicleCapacity('')
     setVehicleType('')
-
   }
   return (
     <div className='py-5 px-5 h-screen flex flex-col justify-between'>

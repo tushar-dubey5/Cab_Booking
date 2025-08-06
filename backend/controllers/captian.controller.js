@@ -56,14 +56,14 @@ const loginCaptian = asyncHandler(async(req, res)=>{
     if(!captian){
         throw new ApiError(400,"Email Not Found")
     }
-    const isValidPassword = captian.comparePassword(password)
+    const isValidPassword = await captian.comparePassword(password)
     if(!isValidPassword){
         throw new ApiError(400, "Invalid Password")
     }
     const token = captian.generateAuthToken();
     const options = {
     httpOnly: true,
-    secure: true
+    secure: false // set to false for local development
     }
    return res
     .status(200)
@@ -82,7 +82,9 @@ const loginCaptian = asyncHandler(async(req, res)=>{
 })
 
 const getCaptianProfile = asyncHandler(async(req, res)=>{
-    res.status(200).json(req.captian)
+    return res.status(200).json(
+        new ApiResponse(200, req.captian, "Captain profile retrieved successfully")
+    );
 })
 
 const logoutCaptain  = asyncHandler(async(req,res)=>{

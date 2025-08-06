@@ -75,13 +75,12 @@ const userLogin = asyncHandler(async(req, res)=>{
         throw new ApiError(401, "Invalid password")
     }
     const token = user.generateAuthToken()
+    console.log("Token Generated", token);
+    
  const options = {
-// The cookie cannot be accessed via JavaScript in the browser (e.g., document.cookie).
-// ✅ This helps prevent XSS attacks, that's why httpOnly: true .
     httpOnly: true,
-// The cookie is only sent over HTTPS (not HTTP).
-// This prevents the cookie from being sent over an unencrypted connection
-    secure: true
+    secure: false, // set to false for local development
+    sameSite: 'lax' // more forgiving for dev
 }
 //  So you're saying: "Only send this cookie in secure environments, 
 // and don't let JavaScript touch it.
@@ -105,8 +104,8 @@ const userLogout = asyncHandler(async (req, res) => {
     const token = req.cookies?.Token|| req.header("Authorization")?.replace("Bearer ","")
     res.clearCookie("Token", {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict"
+        secure: false, // match login cookie for local development
+        sameSite: 'lax' // match login cookie for local development
     });
     await BlackListedToken.create({token})
     return res.status(200).json(
@@ -116,8 +115,9 @@ const userLogout = asyncHandler(async (req, res) => {
 
 //--------------------get User profile-----------------------------//
 const getUserProfile = async (req, res)=>{
-
-    res.status(201).json(req.user);
+    return res.status(200).json(
+        new ApiResponse(200, req.user, "User profile retrieved successfully")
+    );
 }
 export {
     userRegister,

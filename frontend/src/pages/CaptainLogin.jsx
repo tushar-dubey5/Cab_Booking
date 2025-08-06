@@ -21,15 +21,18 @@ const Captainlogin = () => {
       password
     }
 
-    const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/captains/login`, captain)
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/captain/login`, captain)
 
-    if (response.status === 200) {
-      const data = response.data
-
-      setCaptain(data.captain)
-      localStorage.setItem('token', data.token)
-      navigate('/captain-home')
-
+      if (response.status === 200) {
+        const data = response.data
+        setCaptain(data.data.captian) // Updated to handle ApiResponse format
+        localStorage.setItem('token', data.data.token)
+        navigate('/captain-home')
+      }
+    } catch (error) {
+      console.error('Captain login error:', error.response?.data || error.message)
+      // You can add a state to show error message to user
     }
 
     setEmail('')

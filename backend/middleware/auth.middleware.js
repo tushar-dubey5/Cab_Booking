@@ -5,7 +5,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { BlackListedToken } from "../models/blacklistToken.model.js";
 const authUser = async(req, res, next)=>{
   const token = req.cookies?.Token|| req.header("Authorization")?.replace("Bearer ","")
-
+  console.log("Hello FrontEnd, ",token);
+  
     if(!token) throw new ApiError(401,"Unauthorised Access")
     const isBlacklisted = await BlackListedToken.findOne({ token: token });
   if (isBlacklisted) {
